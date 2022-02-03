@@ -5,15 +5,18 @@ const { signToken } = require('../utils/auth');
 const resolvers = {
   Query: {
     users: async () => {
-      return User.find().populate('books');
+      return User.find();
     },
     user: async (parent, { username }) => {
-      return User.findOne({ username }).populate('books');
+      return User.findOne({ username });
     },
     books: async (parent, { username }) => {
-      const params = username ? { username } : {};
-      return Book.find(params).sort({ createdAt: -1 });
+      return User.findOne({ username }).populate('books');
     },
+    // books: async (parent, { username }) => {
+    //   const params = username ? { username } : {};
+    //   return Book.find(params).sort({ createdAt: -1 });
+    // },
     book: async (parent, { bookId }) => {
       return Book.findOne({ _id: bookId });
     },
@@ -51,38 +54,38 @@ const resolvers = {
       // Return an `Auth` object that consists of the signed token and user's information
       return { token, user };
     },
-    addThought: async (parent, { thoughtText, thoughtAuthor }) => {
-      const thought = await Thought.create({ thoughtText, thoughtAuthor });
+    // addThought: async (parent, { thoughtText, thoughtAuthor }) => {
+    //   const thought = await Thought.create({ thoughtText, thoughtAuthor });
 
-      await User.findOneAndUpdate(
-        { username: thoughtAuthor },
-        { $addToSet: { thoughts: thought._id } }
-      );
+    //   await User.findOneAndUpdate(
+    //     { username: thoughtAuthor },
+    //     { $addToSet: { thoughts: thought._id } }
+    //   );
 
-      return thought;
-    },
-    addComment: async (parent, { thoughtId, commentText, commentAuthor }) => {
-      return Thought.findOneAndUpdate(
-        { _id: thoughtId },
-        {
-          $addToSet: { comments: { commentText, commentAuthor } },
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-    },
-    removeThought: async (parent, { thoughtId }) => {
-      return Thought.findOneAndDelete({ _id: thoughtId });
-    },
-    removeComment: async (parent, { thoughtId, commentId }) => {
-      return Thought.findOneAndUpdate(
-        { _id: thoughtId },
-        { $pull: { comments: { _id: commentId } } },
-        { new: true }
-      );
-    },
+    //   return thought;
+    // },
+    // addComment: async (parent, { thoughtId, commentText, commentAuthor }) => {
+    //   return Thought.findOneAndUpdate(
+    //     { _id: thoughtId },
+    //     {
+    //       $addToSet: { comments: { commentText, commentAuthor } },
+    //     },
+    //     {
+    //       new: true,
+    //       runValidators: true,
+    //     }
+    //   );
+    // },
+    // removeThought: async (parent, { thoughtId }) => {
+    //   return Thought.findOneAndDelete({ _id: thoughtId });
+    // },
+    // removeComment: async (parent, { thoughtId, commentId }) => {
+    //   return Thought.findOneAndUpdate(
+    //     { _id: thoughtId },
+    //     { $pull: { comments: { _id: commentId } } },
+    //     { new: true }
+    //   );
+    // },
   },
 };
 
